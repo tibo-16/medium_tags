@@ -8,20 +8,28 @@ class PostsModel extends ChangeNotifier {
   PostsModel()
       : _lastCheckedDate = DateTime.now(),
         _currentTag = 'flutter',
+        _loading = true,
+        _fetchCount = 1,
         super();
 
   DateTime _lastCheckedDate;
   String _currentTag;
+  bool _loading;
+  int _fetchCount;
 
   final int _batchSize = 25;
   final List<Post> _posts = [];
 
   String get tag => _currentTag;
+
   UnmodifiableListView<Post> get posts => UnmodifiableListView(_posts);
+
   int get postsCount => _posts.length;
 
-  void init() async {
-    while (postsCount < _batchSize) {
+  bool get loading => _loading;
+
+  void fetchPosts() async {
+    while (postsCount < _batchSize * _fetchCount) {
       try {
         final newPosts = await Scraper.getPosts(_currentTag, _lastCheckedDate);
         _posts.addAll(newPosts);
@@ -31,6 +39,8 @@ class PostsModel extends ChangeNotifier {
       }
     }
 
+    _loading = false;
+    _fetchCount++;
     notifyListeners();
   }
 
@@ -39,6 +49,6 @@ class PostsModel extends ChangeNotifier {
     _currentTag = tag;
     _posts.clear();
 
-    init();
+    fetchPosts();
   }
 }

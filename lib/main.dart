@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: ChangeNotifierProvider(
-        create: (_) => PostsModel()..init(),
+        create: (_) => PostsModel()..fetchPosts(),
         child: const Home(),
       ),
     );
@@ -31,15 +31,17 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PostsModel>(
-      builder: (context, model, _) => Scaffold(
+    return Consumer<PostsModel>(builder: (context, model, _) {
+      return Scaffold(
         appBar: AppBar(title: Text(model.tag)),
-        body: ListView.builder(
-          itemBuilder: (_, index) => PostItem(post: model.posts[index]),
-          itemCount: model.postsCount,
-        ),
-      ),
-    );
+        body: model.loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                itemBuilder: (_, index) => PostItem(post: model.posts[index]),
+                itemCount: model.postsCount,
+              ),
+      );
+    });
   }
 }
 
