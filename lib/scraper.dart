@@ -14,7 +14,7 @@ class Scraper {
 
     final response = await _client.get(Uri.parse(url));
     if (response.statusCode != 200) {
-      return [];
+      throw Exception('Could not load posts');
     }
 
     final posts = <Post>[];
@@ -29,8 +29,10 @@ class Scraper {
         final authorElement = element.querySelector('.postMetaInline > a');
         final author = _unescape.convert(authorElement?.innerHtml ?? '');
 
-        final titleElement = element.querySelector('.section-inner > h3');
-        final title = _unescape.convert(titleElement?.innerHtml ?? '');
+        var titleElement = element.querySelector('div.section-inner h3');
+        titleElement ??= element.querySelector('div.section-inner p');
+        var title = _unescape.convert(titleElement?.innerHtml ?? '');
+        title = title.replaceAll(RegExp(r'<[^>]*>'), "");
 
         final linkElement = element.querySelector('.postArticle-readMore > a');
         final link = linkElement?.attributes['href'] ?? '';

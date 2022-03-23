@@ -62,7 +62,7 @@ class PostItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_post.author),
+                Flexible(child: Text(_post.author)),
                 Container(
                   decoration: BoxDecoration(
                     color: ColorX.getColorFromDate(_post.publishedDate),

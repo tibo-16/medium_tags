@@ -21,8 +21,15 @@ class PostsModel extends ChangeNotifier {
   int get postsCount => _posts.length;
 
   void init() async {
-    final newPosts = await Scraper.getPosts(_currentTag, _lastCheckedDate);
-    _posts.addAll(newPosts);
+    while (postsCount < _batchSize) {
+      try {
+        final newPosts = await Scraper.getPosts(_currentTag, _lastCheckedDate);
+        _posts.addAll(newPosts);
+        _lastCheckedDate = _lastCheckedDate.subtract(const Duration(days: 1));
+      } catch (_) {
+        break;
+      }
+    }
 
     notifyListeners();
   }
