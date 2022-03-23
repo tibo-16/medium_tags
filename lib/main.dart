@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medium_tags/post.dart';
+import 'package:medium_tags/posts_model.dart';
 import 'package:medium_tags/scraper.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Home(),
+      home: ChangeNotifierProvider(
+        create: (_) => PostsModel()..init(),
+        child: const Home(),
+      ),
     );
   }
 }
@@ -24,26 +29,15 @@ class MyApp extends StatelessWidget {
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
-  final _tag = 'flutter';
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(_tag)),
-      body: FutureBuilder<List<Post>>(
-        future: Scraper.getPosts(_tag, DateTime.now()),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load posts'));
-          }
-
-          final posts = snapshot.data!;
-          return ListView.builder(
-              itemBuilder: (_, index) => PostItem(post: posts[index]),
-              itemCount: posts.length);
-        },
+    return Consumer<PostsModel>(
+      builder: (context, model, _) => Scaffold(
+        appBar: AppBar(title: Text(model.tag)),
+        body: ListView.builder(
+          itemBuilder: (_, index) => PostItem(post: model.posts[index]),
+          itemCount: model.postsCount,
+        ),
       ),
     );
   }
