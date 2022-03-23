@@ -22,17 +22,22 @@ class Scraper {
     final document = parse(response.body);
     final postElements = document.getElementsByClassName('postArticle');
     for (var element in postElements) {
-      final authorElement = element.querySelector('.postMetaInline > a');
-      final author = _unescape.convert(authorElement?.innerHtml ?? '');
+      final timeElement = element.querySelector('time');
+      final time = timeElement?.attributes['datetime'];
 
-      final titleElement = element.querySelector('.section-inner > h3');
-      final title = _unescape.convert(titleElement?.innerHtml ?? '');
+      if (time != null && time.startsWith(date.toDateString())) {
+        final authorElement = element.querySelector('.postMetaInline > a');
+        final author = _unescape.convert(authorElement?.innerHtml ?? '');
 
-      final linkElement = element.querySelector('.postArticle-readMore > a');
-      final link = linkElement?.attributes['href'] ?? '';
+        final titleElement = element.querySelector('.section-inner > h3');
+        final title = _unescape.convert(titleElement?.innerHtml ?? '');
 
-      posts.add(
-          Post(publishedDate: date, author: author, title: title, link: link));
+        final linkElement = element.querySelector('.postArticle-readMore > a');
+        final link = linkElement?.attributes['href'] ?? '';
+
+        posts.add(Post(
+            publishedDate: date, author: author, title: title, link: link));
+      }
     }
 
     return posts;
@@ -42,5 +47,9 @@ class Scraper {
 extension DateTimeX on DateTime {
   String toMediumDate() {
     return '${year.toString().padLeft(4, '0')}/${month.toString().padLeft(2, '0')}/${day.toString().padLeft(2, '0')}';
+  }
+
+  String toDateString() {
+    return '${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
   }
 }
