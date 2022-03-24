@@ -8,7 +8,7 @@ class PostsModel extends ChangeNotifier {
   PostsModel()
       : _lastCheckedDate = DateTime.now(),
         _currentTag = 'flutter',
-        _loading = true,
+        _loading = false,
         _fetchCount = 1,
         super();
 
@@ -28,7 +28,15 @@ class PostsModel extends ChangeNotifier {
 
   bool get loading => _loading;
 
-  void fetchPosts() async {
+  Future<void> fetchPosts() async {
+    // prevent multiple requests
+    if (_loading) {
+      return;
+    }
+
+    _loading = true;
+    notifyListeners();
+
     while (postsCount < _batchSize * _fetchCount) {
       try {
         final newPosts = await Scraper.getPosts(_currentTag, _lastCheckedDate);
@@ -48,6 +56,7 @@ class PostsModel extends ChangeNotifier {
     _lastCheckedDate = DateTime.now();
     _currentTag = tag;
     _posts.clear();
+    _fetchCount = 1;
 
     fetchPosts();
   }
