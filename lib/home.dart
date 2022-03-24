@@ -32,24 +32,31 @@ class _HomeState extends State<Home> {
         appBar: AppBar(title: Text(model.tag)),
         body: SafeArea(
           bottom: true,
-          child: model.loading && model.postsCount == 0
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _controller,
-                        itemBuilder: (_, index) =>
-                            PostItem(post: model.posts[index]),
-                        itemCount: model.postsCount,
-                      ),
-                    ),
-                    if (model.loading) const CircularProgressIndicator()
-                  ],
-                ),
+          child: _buildList(model),
         ),
       );
     });
+  }
+
+  Widget _buildList(PostsModel model) {
+    if (model.hasError) {
+      return const Center(child: Text('Could not load posts'));
+    } else if (model.loading && model.postsCount == 0) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _controller,
+              itemBuilder: (_, index) => PostItem(post: model.posts[index]),
+              itemCount: model.postsCount,
+            ),
+          ),
+          if (model.loading) const CircularProgressIndicator()
+        ],
+      );
+    }
   }
 
   void loadMore() async {
