@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:medium_tags/post_item.dart';
 import 'package:medium_tags/posts_model.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +30,18 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Consumer<PostsModel>(builder: (context, model, _) {
       return Scaffold(
-        appBar: AppBar(title: Text(model.tag)),
+        appBar: AppBar(
+          title: Text(
+            model.tag,
+            style: const TextStyle(
+              fontFamily: 'NoeDisplay',
+              fontSize: 24.0,
+            ),
+          ),
+          foregroundColor: Colors.black,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.white,
+        ),
         body: SafeArea(
           bottom: true,
           child: _buildList(model),
